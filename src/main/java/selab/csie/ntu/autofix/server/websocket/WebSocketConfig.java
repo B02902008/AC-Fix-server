@@ -12,7 +12,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/ws-broadcast", "/ws-private");
+        registry.enableSimpleBroker("/topic", "/ws-private");
         registry.setApplicationDestinationPrefixes("/websocket");
         registry.setUserDestinationPrefix("/ws-private");
     }

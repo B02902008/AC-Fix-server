@@ -11,7 +11,7 @@ import java.security.Principal;
 public class WebSocketController {
 
     @MessageMapping("/whoami")
-    @SendToUser("socket-ID")
+    @SendToUser("/topic/socket-ID")
     public WebSocketMessage returnID(Principal principal) {
         return new WebSocketMessage(principal.getName());
     }

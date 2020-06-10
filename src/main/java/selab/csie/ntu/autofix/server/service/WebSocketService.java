@@ -19,9 +19,9 @@ public class WebSocketService {
 
     private Set<String> socketIDs;
     private final SimpMessagingTemplate template;
-    private static final String WS_DESTINATION_TERMINATE = "/terminate";
-    private static final String WS_DESTINATION_AUTOFIX_LOG = "/autofix/log";
-    private static final String WS_DESTINATION_AUTOFIX_STAGE = "/autofix/stage";
+    private static final String WS_DESTINATION_TERMINATE = "/topic/terminate";
+    private static final String WS_DESTINATION_AUTOFIX_LOG = "/topic/autofix/log";
+    private static final String WS_DESTINATION_AUTOFIX_STAGE = "/topic/autofix/stage";
 
     @Autowired
     WebSocketService(SimpMessagingTemplate template) {
