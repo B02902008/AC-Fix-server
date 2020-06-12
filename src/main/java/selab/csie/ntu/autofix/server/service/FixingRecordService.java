@@ -6,7 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import selab.csie.ntu.autofix.server.exception.NotFoundException;
+import selab.csie.ntu.autofix.server.service.exception.NotFoundException;
 import selab.csie.ntu.autofix.server.model.FixingRecord;
 import selab.csie.ntu.autofix.server.repository.FixingRecordRepository;
 

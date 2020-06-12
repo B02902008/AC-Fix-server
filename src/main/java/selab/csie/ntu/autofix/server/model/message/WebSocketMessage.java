@@ -1,4 +1,4 @@
-package selab.csie.ntu.autofix.server.websocket;
+package selab.csie.ntu.autofix.server.model.message;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

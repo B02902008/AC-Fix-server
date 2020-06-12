@@ -1,4 +1,4 @@
-package selab.csie.ntu.autofix.server.websocket;
+package selab.csie.ntu.autofix.server.service.websocket;
 
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.web.socket.WebSocketHandler;

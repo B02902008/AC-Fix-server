@@ -1,10 +1,12 @@
 package selab.csie.ntu.autofix.server.service;
 
-import selab.csie.ntu.autofix.server.exception.ServiceUnavailableException;
-import selab.csie.ntu.autofix.server.model.AutoFixInvokeMessage;
+import selab.csie.ntu.autofix.server.service.exception.ServiceUnavailableException;
+import selab.csie.ntu.autofix.server.model.message.AutoFixInvokeMessage;
 import selab.csie.ntu.autofix.server.model.FixingRecord;
-import selab.csie.ntu.autofix.server.thread.AutoFixThreadWork;
+import selab.csie.ntu.autofix.server.service.thread.AutoFixThreadWork;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -34,6 +36,13 @@ public abstract class AutoFixService {
             fixingRecordService.removeRecord(id);
             throw new ServiceUnavailableException("Auto-Fix service reached system load limit, retry later.");
         }
+    }
+
+    public Map<String, Integer> getLoading() {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("load", pool.getActiveCount());
+        map.put("core", pool.getCorePoolSize());
+        return map;
     }
 
 }

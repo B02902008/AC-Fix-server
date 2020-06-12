@@ -1,4 +1,4 @@
-package selab.csie.ntu.autofix.server.websocket;
+package selab.csie.ntu.autofix.server.service.websocket;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

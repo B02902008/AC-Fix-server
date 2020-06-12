@@ -1,4 +1,4 @@
-package selab.csie.ntu.autofix.server.websocket;
+package selab.csie.ntu.autofix.server.service.websocket;
 
 import java.security.Principal;
 

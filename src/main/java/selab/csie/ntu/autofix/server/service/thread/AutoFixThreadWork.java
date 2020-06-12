@@ -1,8 +1,8 @@
-package selab.csie.ntu.autofix.server.thread;
+package selab.csie.ntu.autofix.server.service.thread;
 
 import javafx.util.Pair;
 import lombok.SneakyThrows;
-import selab.csie.ntu.autofix.server.model.AutoFixInvokeMessage;
+import selab.csie.ntu.autofix.server.model.message.AutoFixInvokeMessage;
 import selab.csie.ntu.autofix.server.service.FixingRecordService;
 import selab.csie.ntu.autofix.server.service.WebSocketService;
 

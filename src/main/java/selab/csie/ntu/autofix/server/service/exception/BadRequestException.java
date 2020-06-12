@@ -1,4 +1,4 @@
-package selab.csie.ntu.autofix.server.exception;
+package selab.csie.ntu.autofix.server.service.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

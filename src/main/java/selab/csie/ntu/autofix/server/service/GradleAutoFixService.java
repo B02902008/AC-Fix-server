@@ -2,7 +2,7 @@ package selab.csie.ntu.autofix.server.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import selab.csie.ntu.autofix.server.exception.BadRequestException;
+import selab.csie.ntu.autofix.server.service.exception.BadRequestException;
 import selab.csie.ntu.autofix.server.model.FixingRecord;
 
 import java.util.concurrent.SynchronousQueue;
