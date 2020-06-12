@@ -33,3 +33,6 @@ out/
 
 ### Data ###
 data/
+
+### Mac ###
+.DS_Store
