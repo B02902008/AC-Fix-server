@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.*;
 import selab.csie.ntu.autofix.server.service.AutoFixService;
 import selab.csie.ntu.autofix.server.service.exception.BadRequestException;
 import selab.csie.ntu.autofix.server.model.message.AutoFixInvokeMessage;
-import selab.csie.ntu.autofix.server.model.FixingRecord;
 import selab.csie.ntu.autofix.server.service.CmakeAutoFixService;
 import selab.csie.ntu.autofix.server.service.GradleAutoFixService;
 import selab.csie.ntu.autofix.server.service.PipAutoFixService;
@@ -38,8 +37,7 @@ public class AutoFixController {
         AutoFixService service = getServiceByTool(tool);
         if ( service == null )
             throw new BadRequestException("No matching Auto-Fix service.");
-        FixingRecord record = service.generateNewRecord(message.getUrl());
-        service.invokeAutoFix(message, record);
+        service.invokeAutoFix(message, service.generateNewRecord(message.getUrl()));
     }
 
     @GetMapping(value = "/loading/{tool}", produces = "application/json")

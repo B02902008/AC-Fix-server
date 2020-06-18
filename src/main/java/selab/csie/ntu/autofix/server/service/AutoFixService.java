@@ -29,6 +29,7 @@ public abstract class AutoFixService {
     public void invokeAutoFix(AutoFixInvokeMessage message, FixingRecord record) {
         if ( pool.getActiveCount() >= CORE_POOL_SIZE )
             throw new ServiceUnavailableException("Auto-Fix service reached system load limit, retry later.");
+        printLoading();
         Integer id = fixingRecordService.addNewRecord(record).getId();
         try {
             pool.execute(new AutoFixThreadWork(id, message, fixingRecordService, webSocketService));
@@ -36,6 +37,7 @@ public abstract class AutoFixService {
             fixingRecordService.removeRecord(id);
             throw new ServiceUnavailableException("Auto-Fix service reached system load limit, retry later.");
         }
+        printLoading();
     }
 
     public Map<String, Integer> getLoading() {
@@ -43,6 +45,10 @@ public abstract class AutoFixService {
         map.put("load", pool.getActiveCount());
         map.put("core", pool.getCorePoolSize());
         return map;
+    }
+
+    public void printLoading() {
+        System.out.println(String.format("Pool %d current loading: %d", pool.hashCode(), pool.getActiveCount()));
     }
 
 }

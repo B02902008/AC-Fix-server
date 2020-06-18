@@ -3,7 +3,10 @@ package selab.csie.ntu.autofix.server.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import selab.csie.ntu.autofix.server.model.FixingRecord;
+import selab.csie.ntu.autofix.server.service.CmakeAutoFixService;
 import selab.csie.ntu.autofix.server.service.FixingRecordService;
+import selab.csie.ntu.autofix.server.service.GradleAutoFixService;
+import selab.csie.ntu.autofix.server.service.PipAutoFixService;
 
 import java.util.Map;
 
@@ -12,10 +15,21 @@ import java.util.Map;
 public class DebugController {
 
     private FixingRecordService service;
+    private CmakeAutoFixService cmakeAutoFixService;
+    private GradleAutoFixService gradleAutoFixService;
+    private PipAutoFixService pipAutoFixService;
 
     @Autowired
-    public DebugController(FixingRecordService service) {
+    public DebugController(
+            FixingRecordService service,
+            CmakeAutoFixService cmakeAutoFixService,
+            GradleAutoFixService gradleAutoFixService,
+            PipAutoFixService pipAutoFixService
+    ) {
         this.service = service;
+        this.cmakeAutoFixService = cmakeAutoFixService;
+        this.gradleAutoFixService = gradleAutoFixService;
+        this.pipAutoFixService = pipAutoFixService;
     }
 
     @PostMapping(value = "/insert", consumes = "application/json", produces = "application/json")
@@ -41,6 +55,16 @@ public class DebugController {
     @DeleteMapping(value = "/remove/{id}", produces = "application/json")
     public void removeRecord(@PathVariable Integer id) {
         service.removeRecord(id);
+    }
+
+    @GetMapping(value = "/autofix/loading")
+    public void printAutoFixLoading() {
+        System.out.println("In Cmake:");
+        cmakeAutoFixService.printLoading();
+        System.out.println("In Gradle");
+        gradleAutoFixService.printLoading();
+        System.out.println("In Pip");
+        pipAutoFixService.printLoading();
     }
 
 }
