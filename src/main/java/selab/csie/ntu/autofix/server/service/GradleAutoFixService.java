@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import selab.csie.ntu.autofix.server.service.exception.BadRequestException;
 import selab.csie.ntu.autofix.server.model.FixingRecord;
+import selab.csie.ntu.autofix.server.service.thread.CustomThreadPool;
 
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -19,7 +20,7 @@ public class GradleAutoFixService extends AutoFixService {
     public GradleAutoFixService(FixingRecordService fixingRecordService, WebSocketService webSocketService) {
         this.fixingRecordService = fixingRecordService;
         this.webSocketService = webSocketService;
-        this.pool = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, ALIVE_TIME, TIME_UNIT,
+        this.pool = new CustomThreadPool(CORE_POOL_SIZE, MAX_POOL_SIZE, ALIVE_TIME, TIME_UNIT,
                 new SynchronousQueue<>(), new ThreadPoolExecutor.AbortPolicy());
         this.dockerImage = "autofix/gradle-autofix:1.0";
     }
