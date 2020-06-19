@@ -12,6 +12,7 @@ import selab.csie.ntu.autofix.server.service.FixingRecordService;
 
 @Slf4j
 @RestController
+@CrossOrigin("*")
 @RequestMapping("/history")
 public class HistoryController {
 

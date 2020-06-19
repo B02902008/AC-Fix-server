@@ -12,6 +12,7 @@ import selab.csie.ntu.autofix.server.service.PipAutoFixService;
 import java.util.Map;
 
 @RestController
+@CrossOrigin("*")
 @RequestMapping("/autofix")
 public class AutoFixController {
 
