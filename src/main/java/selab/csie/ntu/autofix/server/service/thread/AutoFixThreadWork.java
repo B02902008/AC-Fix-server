@@ -59,8 +59,6 @@ public class AutoFixThreadWork implements Runnable {
         Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", command });
 
         // Read log file and send to websocket
-        if ( !webSocketService.socketAlive(message.getSocketID()) )
-            return;
         Pattern pattern = Pattern.compile("\\[\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}]\\[(.{5})] (.+)");
         InputStreamReader stream = new InputStreamReader(new FileInputStream(logFile), StandardCharsets.UTF_8);
         boolean result = true;
