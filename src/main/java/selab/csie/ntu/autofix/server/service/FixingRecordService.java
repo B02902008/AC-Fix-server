@@ -17,7 +17,7 @@ import java.util.Optional;
 public class FixingRecordService {
 
     private FixingRecordRepository repository;
-    public static final Integer PER_PAGE = 15;
+    public static final Integer PER_PAGE = 10;
 
     @Autowired
     public FixingRecordService(FixingRecordRepository repository) {

@@ -49,7 +49,7 @@ public class FixingRecord {
 
     public static boolean hasField(String field) {
         try {
-            FixingRecord.class.getField(field);
+            FixingRecord.class.getDeclaredField(field);
             return true;
         } catch (NoSuchFieldException e) {
             return false;
