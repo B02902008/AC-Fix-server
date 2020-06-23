@@ -8,7 +8,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import selab.csie.ntu.autofix.server.model.FixingRecord;
+import selab.csie.ntu.autofix.server.model.message.AutoFixInvokeMessage;
 import selab.csie.ntu.autofix.server.service.FixingRecordService;
+import selab.csie.ntu.autofix.server.service.exception.BadRequestException;
 
 @Slf4j
 @RestController
@@ -47,6 +49,13 @@ public class HistoryController {
     @GetMapping(value = "/{id}", produces = "application/json")
     public FixingRecord getHistory(@PathVariable(name = "id") Integer id) {
         return service.getFixingRecord(id);
+    }
+
+    @PostMapping(value = "/stream/{id}", consumes = "application/json")
+    public void invokeLogStream(@PathVariable Integer id, @RequestBody AutoFixInvokeMessage message) {
+        if ( message.getSocketID() == null )
+            throw new BadRequestException("Requires a valid URL.");
+        this.service.invokeLogStream(id, message.getSocketID());
     }
 
 }

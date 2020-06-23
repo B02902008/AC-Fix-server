@@ -63,7 +63,7 @@ public class AutoFixThreadWork implements Runnable {
         InputStreamReader stream = new InputStreamReader(new FileInputStream(logFile), StandardCharsets.UTF_8);
         boolean result = true;
         while ( true ) {
-            String line = readLineFromStream(stream);
+            String line = AutoFixThreadWork.readLineFromStream(stream);
             Matcher matcher = pattern.matcher(line);
             if ( matcher.matches() ) {
                 webSocketService.sendAutoFixLog(message.getSocketID(), line);
@@ -90,7 +90,7 @@ public class AutoFixThreadWork implements Runnable {
         return res;
     }
 
-    private String readLineFromStream(InputStreamReader stream) throws IOException, InterruptedException {
+    public static String readLineFromStream(InputStreamReader stream) throws IOException, InterruptedException {
         StringBuilder sb = new StringBuilder();
         while ( true ) {
             if ( stream.ready() ) {
