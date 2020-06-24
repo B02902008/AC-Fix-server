@@ -9,30 +9,19 @@ import org.springframework.stereotype.Service;
 import selab.csie.ntu.autofix.server.service.exception.NotFoundException;
 import selab.csie.ntu.autofix.server.model.FixingRecord;
 import selab.csie.ntu.autofix.server.repository.FixingRecordRepository;
-import selab.csie.ntu.autofix.server.service.exception.ServiceUnavailableException;
-import selab.csie.ntu.autofix.server.service.thread.LogStreamThreadWork;
 
 import java.util.Date;
 import java.util.Optional;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class FixingRecordService {
 
-    private WebSocketService webSocketService;
     private FixingRecordRepository repository;
-    private ThreadPoolExecutor pool;
     public static final Integer PER_PAGE = 10;
 
     @Autowired
-    public FixingRecordService(WebSocketService webSocketService, FixingRecordRepository repository) {
-        this.webSocketService = webSocketService;
+    public FixingRecordService(FixingRecordRepository repository) {
         this.repository = repository;
-        this.pool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 0L, TimeUnit.MILLISECONDS,
-                new SynchronousQueue<>(), new ThreadPoolExecutor.AbortPolicy());
     }
 
     public Iterable<FixingRecord> getFixingRecords() {
@@ -74,14 +63,6 @@ public class FixingRecordService {
         Sort sort = Sort.by(Sort.Direction.DESC, "end", "id");
         Pageable pageable = PageRequest.of(0, FixingRecordService.PER_PAGE, sort);
         return repository.findAllByStatNot(0, pageable).getContent();
-    }
-
-    public void invokeLogStream(Integer id, String socketID) {
-        try {
-            pool.execute(new LogStreamThreadWork(id, socketID, webSocketService));
-        } catch (RejectedExecutionException e) {
-            throw new ServiceUnavailableException("Log stream service reached system load limit, retry later.");
-        }
     }
 
 }
