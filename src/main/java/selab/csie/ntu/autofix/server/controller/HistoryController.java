@@ -8,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -61,8 +63,12 @@ public class HistoryController {
     @GetMapping(value = "/product/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<Resource> getFixingProduct(@PathVariable Integer id) {
         String filepath = this.historyService.retrieveFixingProduct(id);
+        String filename = filepath.substring(filepath.lastIndexOf('/') + 1);
         FileSystemResource resource = new FileSystemResource(filepath);
-        return ResponseEntity.ok().body(resource);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDisposition(ContentDisposition.builder("attachment").filename(filename).build());
+        return ResponseEntity.ok().headers(headers).body(resource);
     }
 
     @PostMapping(value = "/stream/{id}", consumes = "application/json")
