@@ -32,13 +32,13 @@ public class AutoFixController {
     }
 
     @PostMapping(value = "/{tool}", consumes = "application/json")
-    public void invokeAutoFix(@PathVariable String tool, @RequestBody AutoFixInvokeMessage message) {
+    public Integer invokeAutoFix(@PathVariable String tool, @RequestBody AutoFixInvokeMessage message) {
         if ( message.getUrl() == null )
             throw new BadRequestException("Requires a valid URL.");
         AutoFixService service = getServiceByTool(tool);
         if ( service == null )
             throw new BadRequestException("No matching Auto-Fix service.");
-        service.invokeAutoFix(message, service.generateNewRecord(message.getUrl()));
+        return service.invokeAutoFix(message, service.generateNewRecord(message.getUrl()));
     }
 
     @GetMapping(value = "/loading/{tool}", produces = "application/json")
