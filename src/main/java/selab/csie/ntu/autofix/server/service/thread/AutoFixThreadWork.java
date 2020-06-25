@@ -1,6 +1,5 @@
 package selab.csie.ntu.autofix.server.service.thread;
 
-import javafx.util.Pair;
 import lombok.SneakyThrows;
 import selab.csie.ntu.autofix.server.model.message.AutoFixInvokeMessage;
 import selab.csie.ntu.autofix.server.service.FixingRecordService;
@@ -8,8 +7,7 @@ import selab.csie.ntu.autofix.server.service.WebSocketService;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -108,8 +106,8 @@ public class AutoFixThreadWork implements Runnable {
     private static class DockerRunCmdBuilder {
         private boolean removeInTerminate;
         private boolean executeInBackground;
-        private List<Pair<String, String>> envList;
-        private Pair<String, String> volume;
+        private List<Map.Entry<String, String>> envList;
+        private Map.Entry<String, String> volume;
         private String image;
 
         DockerRunCmdBuilder(String image) {
@@ -131,12 +129,12 @@ public class AutoFixThreadWork implements Runnable {
         }
 
         DockerRunCmdBuilder addEnv(String key, String val) {
-            this.envList.add(new Pair<>(key, val));
+            this.envList.add(new AbstractMap.SimpleEntry<>(key, val));
             return this;
         }
 
         DockerRunCmdBuilder addVolume(String host) {
-            this.volume = new Pair<>(host, AUTOFIX_CONTAINER_VOLUME);
+            this.volume = new AbstractMap.SimpleEntry<>(host, AUTOFIX_CONTAINER_VOLUME);
             return this;
         }
 
@@ -148,8 +146,8 @@ public class AutoFixThreadWork implements Runnable {
                 cmd.add("--rm");
             if (this.executeInBackground)
                 cmd.add("-d");
-            for (Pair pair : this.envList)
-                cmd.add(String.format("-e \"%s=%s\"", pair.getKey(), pair.getValue()));
+            for (Map.Entry entry : this.envList)
+                cmd.add(String.format("-e \"%s=%s\"", entry.getKey(), entry.getValue()));
             if (this.volume != null)
                 cmd.add(String.format("--volume=%s:%s", this.volume.getKey(), this.volume.getValue()));
             cmd.add(this.image);
