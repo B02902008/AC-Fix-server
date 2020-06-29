@@ -64,7 +64,7 @@ public class HistoryController {
         }
     }
 
-    @GetMapping(value = "/product/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @RequestMapping(value = "/product/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE, method = { RequestMethod.GET, RequestMethod.HEAD })
     public ResponseEntity<Resource> getFixingProduct(@PathVariable Integer id) {
         String filepath;
         try {
