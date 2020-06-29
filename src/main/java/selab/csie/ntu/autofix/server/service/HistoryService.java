@@ -2,14 +2,9 @@ package selab.csie.ntu.autofix.server.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import selab.csie.ntu.autofix.server.service.exception.NotFoundException;
-import selab.csie.ntu.autofix.server.service.exception.ServiceUnavailableException;
 import selab.csie.ntu.autofix.server.service.thread.LogStreamThreadWork;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import java.io.*;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -30,20 +25,22 @@ public class HistoryService {
                 new SynchronousQueue<>(), new ThreadPoolExecutor.AbortPolicy());
     }
 
-    public String retrieveFixingProduct(Integer id) {
+    public String retrieveFixingProduct(Integer id) throws FileNotFoundException {
         File directory = new File(String.format("%s/%d/", AUTOFIX_RESULT_DIRECTORY, id));
         FilenameFilter filter = (file, s) -> s.endsWith(".tar.gz");
         String[] products = directory.list(filter);
         if (products == null || products.length == 0)
-            throw new NotFoundException(String.format("Fixing product for build index %d not found.", id));
+            throw new FileNotFoundException();
         return String.format("%s/%d/%s", AUTOFIX_RESULT_DIRECTORY, id, products[0]);
     }
 
-    public void invokeLogStream(Integer id, String socketID) {
+    public void invokeLogStream(Integer id, String socketID) throws IllegalArgumentException, RejectedExecutionException {
+        if ( !service.socketAlive(socketID) )
+            throw new IllegalArgumentException();
         try {
             pool.execute(new LogStreamThreadWork(id, socketID, service));
         } catch (RejectedExecutionException e) {
-            throw new ServiceUnavailableException("Log stream service reached system load limit, retry later.");
+            throw new RejectedExecutionException();
         }
     }
 

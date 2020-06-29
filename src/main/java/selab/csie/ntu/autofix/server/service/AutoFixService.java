@@ -1,6 +1,5 @@
 package selab.csie.ntu.autofix.server.service;
 
-import selab.csie.ntu.autofix.server.service.exception.ServiceUnavailableException;
 import selab.csie.ntu.autofix.server.model.message.AutoFixInvokeMessage;
 import selab.csie.ntu.autofix.server.model.FixingRecord;
 import selab.csie.ntu.autofix.server.service.thread.AutoFixThreadWork;
@@ -26,15 +25,15 @@ public abstract class AutoFixService {
 
     public abstract FixingRecord generateNewRecord(String url);
 
-    public Integer invokeAutoFix(AutoFixInvokeMessage message, FixingRecord record) {
+    public Integer invokeAutoFix(AutoFixInvokeMessage message, FixingRecord record) throws RejectedExecutionException {
         if ( pool.getActiveCount() >= CORE_POOL_SIZE )
-            throw new ServiceUnavailableException("Auto-Fix service reached system load limit, retry later.");
+            throw new RejectedExecutionException();
         Integer id = fixingRecordService.addNewRecord(record).getId();
         try {
             pool.execute(new AutoFixThreadWork(id, message, fixingRecordService, webSocketService));
         } catch (RejectedExecutionException e) {
             fixingRecordService.removeRecord(id);
-            throw new ServiceUnavailableException("Auto-Fix service reached system load limit, retry later.");
+            throw new RejectedExecutionException();
         }
         return id;
     }
@@ -44,11 +43,6 @@ public abstract class AutoFixService {
         map.put("load", pool.getActiveCount());
         map.put("core", pool.getCorePoolSize());
         return map;
-    }
-
-    public void printLoading() {
-        System.out.println(String.format("Pool %d current loading: %d", pool.hashCode(), pool.getActiveCount()));
-        System.out.println(String.format("Pool %d history invoked: %d", pool.hashCode(), pool.getTaskCount()));
     }
 
 }

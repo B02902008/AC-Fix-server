@@ -8,16 +8,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import selab.csie.ntu.autofix.server.model.FixingRecord;
 import selab.csie.ntu.autofix.server.model.message.AutoFixInvokeMessage;
 import selab.csie.ntu.autofix.server.service.FixingRecordService;
 import selab.csie.ntu.autofix.server.service.HistoryService;
-import selab.csie.ntu.autofix.server.service.exception.BadRequestException;
+
+import java.io.FileNotFoundException;
+import java.util.concurrent.RejectedExecutionException;
 
 @Slf4j
 @RestController
@@ -57,12 +57,21 @@ public class HistoryController {
 
     @GetMapping(value = "/{id}", produces = "application/json")
     public FixingRecord getHistory(@PathVariable(name = "id") Integer id) {
-        return fixingRecordService.getFixingRecord(id);
+        try {
+            return fixingRecordService.getFixingRecord(id);
+        } catch (FileNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Cannot find fixing record with id: %d.", id));
+        }
     }
 
     @GetMapping(value = "/product/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<Resource> getFixingProduct(@PathVariable Integer id) {
-        String filepath = this.historyService.retrieveFixingProduct(id);
+        String filepath;
+        try {
+            filepath = this.historyService.retrieveFixingProduct(id);
+        } catch (FileNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Fixing product for build index %d not found.", id));
+        }
         String filename = filepath.substring(filepath.lastIndexOf('/') + 1);
         FileSystemResource resource = new FileSystemResource(filepath);
         HttpHeaders headers = new HttpHeaders();
@@ -73,9 +82,13 @@ public class HistoryController {
 
     @PostMapping(value = "/stream/{id}", consumes = "application/json")
     public void invokeLogStream(@PathVariable Integer id, @RequestBody AutoFixInvokeMessage message) {
-        if ( message.getSocketID() == null )
-            throw new BadRequestException("Requires target socket ID.");
-        this.historyService.invokeLogStream(id, message.getSocketID());
+        try {
+            this.historyService.invokeLogStream(id, message.getSocketID());
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Requires a valid web socket ID.");
+        } catch (RejectedExecutionException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Log stream service reached system load limit, please retry later.");
+        }
     }
 
 }

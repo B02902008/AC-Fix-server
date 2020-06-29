@@ -6,10 +6,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import selab.csie.ntu.autofix.server.service.exception.NotFoundException;
 import selab.csie.ntu.autofix.server.model.FixingRecord;
 import selab.csie.ntu.autofix.server.repository.FixingRecordRepository;
 
+import java.io.FileNotFoundException;
 import java.util.Date;
 import java.util.Optional;
 
@@ -32,10 +32,10 @@ public class FixingRecordService {
         return repository.findAll(pageable);
     }
 
-    public FixingRecord getFixingRecord(Integer id) {
+    public FixingRecord getFixingRecord(Integer id) throws FileNotFoundException {
         Optional<FixingRecord> record = repository.findById(id);
         if ( !record.isPresent() )
-            throw new NotFoundException(String.format("Cannot find fixing record with id: %d.", id));
+            throw new FileNotFoundException();
         return record.get();
     }
 

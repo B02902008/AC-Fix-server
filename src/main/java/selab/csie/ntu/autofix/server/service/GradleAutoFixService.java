@@ -2,7 +2,6 @@ package selab.csie.ntu.autofix.server.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import selab.csie.ntu.autofix.server.service.exception.BadRequestException;
 import selab.csie.ntu.autofix.server.model.FixingRecord;
 import selab.csie.ntu.autofix.server.service.thread.CustomThreadPool;
 
@@ -26,10 +25,10 @@ public class GradleAutoFixService extends AutoFixService {
     }
 
     @Override
-    public FixingRecord generateNewRecord(String url) {
+    public FixingRecord generateNewRecord(String url) throws IllegalArgumentException {
         Matcher matcher = URL_PATTERN.matcher(url);
         if ( !matcher.matches() )
-            throw new BadRequestException("Requires a valid URL.");
+            throw new IllegalArgumentException();
         String name = matcher.group(3);
         while ( name.endsWith(".git") )
             name = name.substring(0, name.length() - 4);
