@@ -3,34 +3,37 @@ package selab.csie.ntu.autofix.server.service;
 import selab.csie.ntu.autofix.server.model.message.AutoFixInvokeMessage;
 import selab.csie.ntu.autofix.server.model.FixingRecord;
 import selab.csie.ntu.autofix.server.service.thread.AutoFixThreadWork;
+import selab.csie.ntu.autofix.server.service.thread.CustomThreadPool;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AutoFixService {
 
-    FixingRecordService fixingRecordService;
-    WebSocketService webSocketService;
-    ThreadPoolExecutor pool;
+    private FixingRecordService fixingRecordService;
+    private WebSocketService webSocketService;
+    private ThreadPoolExecutor pool;
     String dockerImage;
 
-    static final Integer CORE_POOL_SIZE = 100;
-    static final Integer MAX_POOL_SIZE = 110;
-    static final Long ALIVE_TIME = 0L;
-    static final TimeUnit TIME_UNIT = TimeUnit.MILLISECONDS;
-
+    protected AutoFixService(FixingRecordService fixingRecordService, WebSocketService webSocketService) {
+        this.fixingRecordService = fixingRecordService;
+        this.webSocketService = webSocketService;
+        this.pool = new CustomThreadPool(100, 110, 0L, TimeUnit.MILLISECONDS,
+                new SynchronousQueue<>(), new ThreadPoolExecutor.AbortPolicy());
+    }
 
     public abstract FixingRecord generateNewRecord(String url);
 
-    public Integer invokeAutoFix(AutoFixInvokeMessage message, FixingRecord record) throws RejectedExecutionException {
-        if ( pool.getActiveCount() >= CORE_POOL_SIZE )
+    public Integer invokeAutoFix(AutoFixInvokeMessage message, FixingRecord record) {
+        if ( pool.getActiveCount() >= 100 )
             throw new RejectedExecutionException();
         Integer id = fixingRecordService.addNewRecord(record).getId();
         try {
-            pool.execute(new AutoFixThreadWork(id, message, fixingRecordService, webSocketService));
+            pool.execute(new AutoFixThreadWork(id, dockerImage, message, fixingRecordService, webSocketService));
         } catch (RejectedExecutionException e) {
             fixingRecordService.removeRecord(id);
             throw new RejectedExecutionException();

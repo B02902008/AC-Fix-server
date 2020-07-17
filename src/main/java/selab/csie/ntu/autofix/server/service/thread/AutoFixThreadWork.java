@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 public class AutoFixThreadWork implements Runnable {
 
     private Integer id;
+    private String dockerImage;
     private AutoFixInvokeMessage message;
     private FixingRecordService fixingRecordService;
     private WebSocketService webSocketService;
@@ -22,9 +23,10 @@ public class AutoFixThreadWork implements Runnable {
     private static final String AUTOFIX_CONTAINER_VOLUME = "/home/autofix/result";
 
 
-    public AutoFixThreadWork(Integer id, AutoFixInvokeMessage message,
+    public AutoFixThreadWork(Integer id, String dockerImage, AutoFixInvokeMessage message,
                       FixingRecordService fixingRecordService, WebSocketService webSocketService) {
         this.id = id;
+        this.dockerImage = dockerImage;
         this.message = message;
         this.fixingRecordService = fixingRecordService;
         this.webSocketService = webSocketService;
@@ -46,7 +48,7 @@ public class AutoFixThreadWork implements Runnable {
         }
 
         // Build and execute docker command
-        DockerRunCmdBuilder cmdBuilder = new DockerRunCmdBuilder("autofix/gradle-autofix:1.0");
+        DockerRunCmdBuilder cmdBuilder = new DockerRunCmdBuilder(dockerImage);
         String command = cmdBuilder
                 .remove()
                 .background()
@@ -78,6 +80,7 @@ public class AutoFixThreadWork implements Runnable {
                 }
             }
         }
+        stream.close();
     }
 
     private boolean createAllPermissionPath(File path, boolean isFile) throws IOException {
@@ -146,7 +149,7 @@ public class AutoFixThreadWork implements Runnable {
                 cmd.add("--rm");
             if (this.executeInBackground)
                 cmd.add("-d");
-            for (Map.Entry entry : this.envList)
+            for (Map.Entry<String, String> entry : this.envList)
                 cmd.add(String.format("-e \"%s=%s\"", entry.getKey(), entry.getValue()));
             if (this.volume != null)
                 cmd.add(String.format("--volume=%s:%s", this.volume.getKey(), this.volume.getValue()));

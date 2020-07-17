@@ -33,17 +33,16 @@ public class LogStreamThreadWork implements Runnable {
         }
         Pattern pattern = Pattern.compile("\\[\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}]\\[(.{5})] .+");
         InputStreamReader stream = new InputStreamReader(new FileInputStream(logFile), StandardCharsets.UTF_8);
-        while ( true ) {
+        while ( service.socketAlive(socketID) ) {
             String line = AutoFixThreadWork.readLineFromStream(stream);
             service.sendAutoFixLog(socketID, line);
             Matcher matcher = pattern.matcher(line);
             if ( matcher.matches() && matcher.group(1).equals("FINAL") ) {
                 service.sendWebSocketTerminate(socketID);
                 break;
-            } else if (!service.socketAlive(socketID)) {
-                break;
             }
         }
+        stream.close();
     }
 
 }

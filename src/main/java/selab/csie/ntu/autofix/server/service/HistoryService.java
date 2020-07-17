@@ -34,7 +34,7 @@ public class HistoryService {
         return String.format("%s/%d/%s", AUTOFIX_RESULT_DIRECTORY, id, products[0]);
     }
 
-    public void invokeLogStream(Integer id, String socketID) throws IllegalArgumentException, RejectedExecutionException {
+    public void invokeLogStream(Integer id, String socketID) {
         if ( !service.socketAlive(socketID) )
             throw new IllegalArgumentException();
         try {
