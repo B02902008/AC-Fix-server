@@ -36,3 +36,7 @@ data/
 
 ### Mac ###
 .DS_Store
+
+### Sonar Scanner ###
+.scannerwork/
+
