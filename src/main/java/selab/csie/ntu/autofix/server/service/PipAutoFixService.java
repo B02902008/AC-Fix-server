@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 @Service
 public class PipAutoFixService extends AutoFixService {
 
-    private static final Pattern URL_PATTERN = Pattern.compile("https?://pypi.org/project/([-.\\w]+)/?");
+    private static final Pattern URL_PATTERN = Pattern.compile("https?://pypi\\.org/project/([-.\\w]+)/?");
 
     @Autowired
     public PipAutoFixService(FixingRecordService fixingRecordService, WebSocketService webSocketService) {
@@ -20,11 +20,14 @@ public class PipAutoFixService extends AutoFixService {
 
     @Override
     public FixingRecord generateNewRecord(String url) {
+        return new FixingRecord(extractProjectNameFromURL(url), "Python", "Pip");
+    }
+
+    private static String extractProjectNameFromURL(String url) {
         Matcher matcher = URL_PATTERN.matcher(url);
         if ( !matcher.matches() )
             throw new IllegalArgumentException();
-        String name = matcher.group(1);
-        return new FixingRecord(name, "Python", "Pip");
+        return matcher.group(1);
     }
 
 }

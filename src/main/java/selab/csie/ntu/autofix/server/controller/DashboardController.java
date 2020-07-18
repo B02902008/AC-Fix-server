@@ -1,6 +1,7 @@
 package selab.csie.ntu.autofix.server.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,12 +21,12 @@ public class DashboardController {
         this.fixingRecordService = fixingRecordService;
     }
 
-    @GetMapping(value = "/current", produces = "application/json")
+    @GetMapping(value = "/current", produces = MediaType.APPLICATION_JSON_VALUE)
     public Iterable<FixingRecord> currentQueue() {
         return fixingRecordService.getCurrentFixings();
     }
 
-    @GetMapping(value = "/recent", produces = "application/json")
+    @GetMapping(value = "/recent", produces = MediaType.APPLICATION_JSON_VALUE)
     public Iterable<FixingRecord> recentResult() {
         return fixingRecordService.getRecentResults();
     }

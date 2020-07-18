@@ -34,14 +34,14 @@ public class HistoryController {
         this.historyService = historyService;
     }
 
-    @GetMapping(value = "/", produces = "application/json")
+    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     public Page<FixingRecord> allHistory() {
         Sort sort = Sort.by(Sort.Direction.DESC, "id");
         Pageable pageable = PageRequest.of(0, FixingRecordService.PER_PAGE, sort);
         return fixingRecordService.getFixingRecords(pageable);
     }
 
-    @GetMapping(value = "/page/{page_num}", produces = "application/json")
+    @GetMapping(value = "/page/{page_num}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Page<FixingRecord> allHistory(
             @PathVariable(name = "page_num") Integer page,
             @RequestParam(name = "sorting", required = false, defaultValue = "id") String sorting,
@@ -55,7 +55,7 @@ public class HistoryController {
         return fixingRecordService.getFixingRecords(pageable);
     }
 
-    @GetMapping(value = "/{id}", produces = "application/json")
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public FixingRecord getHistory(@PathVariable(name = "id") Integer id) {
         try {
             return fixingRecordService.getFixingRecord(id);
@@ -80,7 +80,7 @@ public class HistoryController {
         return ResponseEntity.ok().headers(headers).body(resource);
     }
 
-    @PostMapping(value = "/stream/{id}", consumes = "application/json")
+    @PostMapping(value = "/stream/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void invokeLogStream(@PathVariable Integer id, @RequestBody AutoFixInvokeMessage message) {
         try {
             this.historyService.invokeLogStream(id, message.getSocketID());

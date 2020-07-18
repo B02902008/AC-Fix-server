@@ -43,7 +43,7 @@ public class FixingRecordService {
         return repository.save(record);
     }
 
-    public FixingRecord updateRecord(Integer id, Boolean result) {
+    public FixingRecord updateRecord(Integer id, boolean result) {
         FixingRecord record = new FixingRecord();
         record.setId(id);
         record.setStat(result ? 1 : -1);

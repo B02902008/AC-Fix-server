@@ -1,6 +1,7 @@
 package selab.csie.ntu.autofix.server.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import selab.csie.ntu.autofix.server.model.FixingRecord;
 import selab.csie.ntu.autofix.server.service.FixingRecordService;
@@ -19,27 +20,27 @@ public class DebugController {
         this.service = service;
     }
 
-    @PostMapping(value = "/insert", consumes = "application/json", produces = "application/json")
-    public FixingRecord insertRecord(@RequestBody Map<String, String> map) {
+    @PostMapping(value = "/insert", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void insertRecord(@RequestBody Map<String, String> map) {
         FixingRecord record = new FixingRecord(
                 map.getOrDefault("name", "defaultName"),
                 map.getOrDefault("lang", "defaultLang"),
                 map.getOrDefault("tool", "defaultTool")
         );
-        return service.addNewRecord(record);
+        service.addNewRecord(record);
     }
 
-    @GetMapping(value = "/all", produces = "application/json")
+    @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public Iterable<FixingRecord> getRecords() {
         return service.getFixingRecords();
     }
 
-    @PatchMapping(value = "/update", consumes = "application/json", produces = "application/json")
-    public FixingRecord updateRecord(@RequestBody Map<String, Object> map) {
-        return service.updateRecord((Integer) map.get("id"), (Boolean) map.get("result"));
+    @PatchMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void updateRecord(@RequestBody Map<String, Object> map) {
+        service.updateRecord((Integer) map.get("id"), (Boolean) map.get("result"));
     }
 
-    @DeleteMapping(value = "/remove/{id}", produces = "application/json")
+    @DeleteMapping(value = "/remove/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public void removeRecord(@PathVariable Integer id) {
         service.removeRecord(id);
     }
