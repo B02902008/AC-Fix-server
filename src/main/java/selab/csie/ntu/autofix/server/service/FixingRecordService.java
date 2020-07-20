@@ -24,10 +24,6 @@ public class FixingRecordService {
         this.repository = repository;
     }
 
-    public Iterable<FixingRecord> getFixingRecords() {
-        return repository.findAll();
-    }
-
     public Page<FixingRecord> getFixingRecords(Pageable pageable) {
         return repository.findAll(pageable);
     }

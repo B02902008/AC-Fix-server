@@ -1,8 +1,8 @@
 package selab.csie.ntu.autofix.server.model.message;
 
-import lombok.Value;
+import lombok.Data;
 
-@Value
+@Data
 public class AutoFixInvokeMessage {
 
     String socketID;
