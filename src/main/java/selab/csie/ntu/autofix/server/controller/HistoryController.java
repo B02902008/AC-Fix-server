@@ -48,8 +48,9 @@ public class HistoryController {
             @RequestParam(name = "direction", required = false, defaultValue = "desc") String direction
     ) {
         Sort sort = Sort.by(
-                direction.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC,
-                FixingRecord.hasField(sorting) ? new String[] { sorting, "id" } : new String[] { "id" }
+                direction.toLowerCase().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC,
+                FixingRecord.hasField(sorting.toLowerCase()) && !sorting.toLowerCase().equals("id") ?
+                        new String[] { sorting, "id" } : new String[] { "id" }
         );
         Pageable pageable = PageRequest.of(page - 1, FixingRecordService.PER_PAGE, sort);
         return fixingRecordService.getFixingRecords(pageable);

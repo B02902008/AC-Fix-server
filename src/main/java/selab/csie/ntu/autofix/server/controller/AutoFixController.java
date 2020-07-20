@@ -37,7 +37,7 @@ public class AutoFixController {
     @PostMapping(value = "/{tool}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Integer invokeAutoFix(@PathVariable String tool, @RequestBody AutoFixInvokeMessage message) {
         if ( message.getUrl() == null || message.getUrl().length() == 0 )
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Requires a valid URL.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Requires a non-empty URL.");
         AutoFixService service = getServiceByTool(tool);
         if ( service == null )
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No matching Auto-Fix service.");
