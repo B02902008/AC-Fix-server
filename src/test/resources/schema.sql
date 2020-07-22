@@ -1,0 +1,11 @@
+DROP TABLE IF EXISTS `FixingRecord`;
+CREATE TABLE `FixingRecord` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `stat` TINYINT NOT NULL DEFAULT 0,
+    `name` VARCHAR(45) NOT NULL DEFAULT 'defaultName',
+    `lang` VARCHAR(45) NOT NULL DEFAULT 'defaultLang',
+    `tool` VARCHAR(45) NOT NULL DEFAULT 'defaultTool',
+    `start` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `end` TIMESTAMP NULL,
+    PRIMARY KEY (`id`)
+);

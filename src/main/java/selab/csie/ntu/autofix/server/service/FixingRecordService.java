@@ -39,12 +39,12 @@ public class FixingRecordService {
         return repository.save(record);
     }
 
-    public FixingRecord updateRecord(Integer id, boolean result) {
+    public void updateRecord(Integer id, boolean result) {
         FixingRecord record = new FixingRecord();
         record.setId(id);
         record.setStat(result ? 1 : -1);
         record.setEnd(new Date());
-        return repository.save(record);
+        repository.save(record);
     }
 
     public void removeRecord(Integer id) {

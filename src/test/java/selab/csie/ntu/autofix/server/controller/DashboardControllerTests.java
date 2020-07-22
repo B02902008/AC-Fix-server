@@ -61,7 +61,7 @@ class DashboardControllerTests {
             mockMvc.perform(get(api)).andExpect(status().isOk());
         }
 
-        /* Test return format and pagination value for API: Get current queue */
+        /* Test return format for API: Get current queue */
         @Test
         void testAPICorrectReturn() throws Exception {
             mockMvc.perform(get(api)).andExpect(jsonPath("$", hasSize(10)));
@@ -103,7 +103,7 @@ class DashboardControllerTests {
             mockMvc.perform(get(api)).andExpect(status().isOk());
         }
 
-        /* Test return format and pagination value for API: Get recent result */
+        /* Test return format for API: Get recent result */
         @Test
         void testAPICorrectReturn() throws Exception {
             mockMvc.perform(get(api)).andExpect(jsonPath("$", hasSize(10)));
