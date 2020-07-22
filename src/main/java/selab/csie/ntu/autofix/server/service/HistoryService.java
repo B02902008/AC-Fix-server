@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import selab.csie.ntu.autofix.server.service.thread.LogStreamThreadWork;
 
 import java.io.*;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -37,11 +36,7 @@ public class HistoryService {
     public void invokeLogStream(Integer id, String socketID) {
         if ( !service.socketAlive(socketID) )
             throw new IllegalArgumentException();
-        try {
-            pool.execute(new LogStreamThreadWork(id, socketID, service));
-        } catch (RejectedExecutionException e) {
-            throw new RejectedExecutionException();
-        }
+        pool.execute(new LogStreamThreadWork(id, socketID, service));
     }
 
 }

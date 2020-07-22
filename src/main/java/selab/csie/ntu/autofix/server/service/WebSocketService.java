@@ -1,6 +1,5 @@
 package selab.csie.ntu.autofix.server.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.MessageHeaders;
@@ -13,7 +12,6 @@ import java.security.Principal;
 import java.util.HashSet;
 import java.util.Set;
 
-@Slf4j
 @Service
 public class WebSocketService {
 
@@ -35,7 +33,6 @@ public class WebSocketService {
         Principal principal = (Principal) headers.getOrDefault("simpUser", null);
         String socketID = principal != null ? principal.getName() : "Anonymous";
         this.socketIDs.add(socketID);
-        log.debug("WebSocket connected: " + socketID);
     }
 
     @EventListener(SessionDisconnectEvent.class)
@@ -44,21 +41,20 @@ public class WebSocketService {
         Principal principal = (Principal) headers.getOrDefault("simpUser", null);
         String socketID = principal != null ? principal.getName() : "Anonymous";
         this.socketIDs.remove(socketID);
-        log.debug("WebSocket disconnected: " + socketID);
     }
 
     public void sendWebSocketTerminate(String socketID) {
-        if ( socketID != null && this.socketIDs.contains(socketID) )
+        if (this.socketAlive(socketID))
             this.template.convertAndSendToUser(socketID, WS_DESTINATION_TERMINATE, "");
     }
 
     public void sendAutoFixLog(String socketID, String msg) {
-        if ( socketID != null && this.socketIDs.contains(socketID) )
+        if (this.socketAlive(socketID))
             this.template.convertAndSendToUser(socketID, WS_DESTINATION_AUTOFIX_LOG, msg);
     }
 
     public void sendAutoFixStage(String socketID, String msg) {
-        if ( socketID != null && this.socketIDs.contains(socketID) )
+        if (this.socketAlive(socketID))
             this.template.convertAndSendToUser(socketID, WS_DESTINATION_AUTOFIX_STAGE, msg);
     }
 

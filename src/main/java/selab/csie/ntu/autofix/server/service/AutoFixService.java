@@ -26,6 +26,11 @@ public abstract class AutoFixService {
                 new SynchronousQueue<>(), new ThreadPoolExecutor.AbortPolicy());
     }
 
+    /* For unit test */
+    public void setPool(ThreadPoolExecutor pool) {
+        this.pool = pool;
+    }
+
     public abstract FixingRecord generateNewRecord(String url);
 
     public Integer invokeAutoFix(AutoFixInvokeMessage message, FixingRecord record) {

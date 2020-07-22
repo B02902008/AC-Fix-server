@@ -30,6 +30,7 @@ public class LogStreamThreadWork implements Runnable {
         if (!logFile.exists()) {
             service.sendAutoFixLog(socketID, "Log file does not exist.");
             service.sendWebSocketTerminate(socketID);
+            return;
         }
         Pattern pattern = Pattern.compile("\\[\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}]\\[(.{5})] .+");
         InputStreamReader stream = new InputStreamReader(new FileInputStream(logFile), StandardCharsets.UTF_8);

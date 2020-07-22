@@ -6,7 +6,7 @@ public class StompPrincipal implements Principal {
 
     private final String name;
 
-    StompPrincipal(String name) {
+    public StompPrincipal(String name) {
         this.name = name;
     }
 
