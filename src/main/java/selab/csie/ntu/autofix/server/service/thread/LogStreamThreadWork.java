@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LogStreamThreadWork implements Runnable {
@@ -32,13 +31,12 @@ public class LogStreamThreadWork implements Runnable {
             service.sendWebSocketTerminate(socketID);
             return;
         }
-        Pattern pattern = Pattern.compile("\\[\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}]\\[(.{5})] .+");
+        Pattern pattern = Pattern.compile("\\[\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}]\\[FINAL] .+");
         InputStreamReader stream = new InputStreamReader(new FileInputStream(logFile), StandardCharsets.UTF_8);
-        while ( service.socketAlive(socketID) ) {
+        while (service.socketAlive(socketID)) {
             String line = AutoFixThreadWork.readLineFromStream(stream);
             service.sendAutoFixLog(socketID, line);
-            Matcher matcher = pattern.matcher(line);
-            if ( matcher.matches() && matcher.group(1).equals("FINAL") ) {
+            if (pattern.matcher(line).matches()) {
                 service.sendWebSocketTerminate(socketID);
                 break;
             }

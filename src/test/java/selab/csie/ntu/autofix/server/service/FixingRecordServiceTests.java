@@ -64,14 +64,16 @@ class FixingRecordServiceTests {
         assertThat(page.getTotalPages()).isEqualTo(7);
         assertThat(page.getSize()).isEqualTo(15);
         assertThat(page.getNumber()).isEqualTo(5);
-        assertThat(ids).isSortedAccordingTo(Comparator.naturalOrder());
-        assertThat(ids).isEqualTo(IntStream.range(76, 91).boxed().collect(Collectors.toList()));
+        assertThat(ids).isSortedAccordingTo(Comparator.naturalOrder())
+                .isEqualTo(IntStream.range(76, 91).boxed().collect(Collectors.toList()));
     }
 
     /* Test update */
     @Test
     @Order(4)
     void testUpdate() throws FileNotFoundException {
+        service.updateRecord(101, true);
+        assertThat(service.getFixingRecord(101).getStat()).isEqualTo(1);
         service.updateRecord(101, false);
         assertThat(service.getFixingRecord(101).getStat()).isEqualTo(-1);
     }
@@ -88,7 +90,7 @@ class FixingRecordServiceTests {
     @Test
     void testCurrent() {
         List<FixingRecord> current = (List<FixingRecord>) service.getCurrentFixings();
-        List<Integer> ids = current.stream().peek(record -> assertThat(record.getStat()).isEqualTo(0))
+        List<Integer> ids = current.stream().peek(record -> assertThat(record.getStat()).isZero())
                 .map(FixingRecord::getId)
                 .collect(Collectors.toList());
         assertThat(ids).isSortedAccordingTo(Comparator.reverseOrder());
@@ -98,7 +100,7 @@ class FixingRecordServiceTests {
     @Test
     void testRecent() {
         List<FixingRecord> recent = (List<FixingRecord>) service.getRecentResults();
-        List<Date> ends = recent.stream().peek(record -> assertThat(record.getStat()).isNotEqualTo(0))
+        List<Date> ends = recent.stream().peek(record -> assertThat(record.getStat()).isNotZero())
                 .map(FixingRecord::getEnd)
                 .collect(Collectors.toList());
         assertThat(ends).isSortedAccordingTo(Comparator.reverseOrder());

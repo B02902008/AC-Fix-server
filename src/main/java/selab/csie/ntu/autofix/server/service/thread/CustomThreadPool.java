@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 public class CustomThreadPool extends ThreadPoolExecutor {
 
     private Integer activeCount;
-    private Long taskCount;
 
     public CustomThreadPool(
             int corePoolSize,
@@ -20,7 +19,6 @@ public class CustomThreadPool extends ThreadPoolExecutor {
     ) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, handler);
         this.activeCount = 0;
-        this.taskCount = 0L;
     }
 
     @Override
@@ -31,17 +29,11 @@ public class CustomThreadPool extends ThreadPoolExecutor {
     @Override
     public void beforeExecute(Thread t, Runnable r) {
         this.activeCount += 1;
-        this.taskCount += 1L;
     }
 
     @Override
     public int getActiveCount() {
         return this.activeCount;
-    }
-
-    @Override
-    public long getTaskCount() {
-        return this.taskCount;
     }
 
 }

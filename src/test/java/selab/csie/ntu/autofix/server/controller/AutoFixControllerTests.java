@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +40,8 @@ class AutoFixControllerTests {
     private GradleAutoFixService gradleService;
     private PipAutoFixService pipService;
 
+    enum URL { url, urlRejected, urlUnmatched  }
+
     @BeforeEach
     void setup() {
         cmakeService = Mockito.mock(CmakeAutoFixService.class);
@@ -52,44 +55,57 @@ class AutoFixControllerTests {
     class InvokeAutoFix {
 
         private String api;
-        private String mockJson;
-        private String mockJsonEmpty;
-        private String mockJsonRejected;
-        private String mockJsonUnmatched;
+        private AutoFixInvokeMessage msg;
+        private ObjectMapper om;
 
         @BeforeEach
         void setup() {
             api = "/autofix/{tool}";
-            mockJson = "{\"socketID\":\"SOCKET_ID\",\"url\":\"https://ntu.edu.tw\"}";
-            mockJsonEmpty = "{\"socketID\":\"SOCKET_ID\",\"url\":\"\"}";
-            mockJsonRejected = "{\"socketID\":\"SOCKET_ID\",\"url\":\"https://google.com\"}";
-            mockJsonUnmatched = "{\"socketID\":\"SOCKET_ID\",\"url\":\"https://github.com\"}";
+            msg = new AutoFixInvokeMessage();
+            msg.setSocketID("SOCKET_ID");
+            msg.setUrl(URL.url.toString());
+            om = new ObjectMapper();
             BDDMockito.given(gradleService.generateNewRecord(anyString())).willReturn(new FixingRecord());
-            BDDMockito.given(cmakeService.generateNewRecord("https://github.com")).willThrow(new IllegalArgumentException());
+            BDDMockito.given(cmakeService.generateNewRecord(URL.urlUnmatched.toString())).willThrow(new IllegalArgumentException());
             BDDMockito.given(gradleService.invokeAutoFix(any(AutoFixInvokeMessage.class), any(FixingRecord.class)))
                     .willReturn(1);
-            BDDMockito.given(gradleService.invokeAutoFix(argThat(msg -> msg.getUrl().equals("https://google.com")), any(FixingRecord.class)))
+            BDDMockito.given(gradleService.invokeAutoFix(argThat(msg -> msg.getUrl().equals(URL.urlRejected.toString())), any(FixingRecord.class)))
                     .willThrow(new RejectedExecutionException());
         }
 
         /* Test code 200 for API: Invoke autofix service */
         @Test
         void testAPICodeOk() throws Exception {
-            mockMvc.perform(post(api, "gradle").contentType(MediaType.APPLICATION_JSON).content(mockJson))
+            mockMvc.perform(post(api, "gradle")
+                    .contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsString(msg)))
                     .andExpect(status().isOk());
         }
 
         /* Test return value for API: Invoke autofix service */
         @Test
         void testAPICorrectReturn() throws Exception {
-            mockMvc.perform(post(api, "gradle").contentType(MediaType.APPLICATION_JSON).content(mockJson))
+            mockMvc.perform(post(api, "gradle")
+                    .contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsString(msg)))
                     .andExpect(content().string("1"));
         }
 
-        /* Test code 401 for API: Invoke autofix service (empty or null url) */
+        /* Test code 401 for API: Invoke autofix service (empty url) */
         @Test
         void testAPICodeBadRequestWithEmptyUrl() throws Exception {
-            ResultActions result = mockMvc.perform(post(api, "gradle").contentType(MediaType.APPLICATION_JSON).content(mockJsonEmpty));
+            msg.setUrl("");
+            ResultActions result = mockMvc.perform(post(api, "gradle")
+                    .contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsString(msg)));
+            result.andExpect(status().isBadRequest());
+            Throwable throwable = result.andReturn().getResolvedException();
+            Assertions.assertTrue(throwable != null && throwable.getMessage().contains("non-empty"));
+        }
+
+        /* Test code 401 for API: Invoke autofix service (null url) */
+        @Test
+        void testAPICodeBadRequestWithNullUrl() throws Exception {
+            msg.setUrl(null);
+            ResultActions result = mockMvc.perform(post(api, "gradle")
+                    .contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsString(msg)));
             result.andExpect(status().isBadRequest());
             Throwable throwable = result.andReturn().getResolvedException();
             Assertions.assertTrue(throwable != null && throwable.getMessage().contains("non-empty"));
@@ -98,7 +114,9 @@ class AutoFixControllerTests {
         /* Test code 401 for API: Invoke autofix service (regex unmatched url) */
         @Test
         void testAPICodeBadRequestWithUnmatchedUrl() throws Exception {
-            ResultActions result = mockMvc.perform(post(api, "cmake").contentType(MediaType.APPLICATION_JSON).content(mockJsonUnmatched));
+            msg.setUrl(URL.urlUnmatched.toString());
+            ResultActions result = mockMvc.perform(post(api, "cmake")
+                    .contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsString(msg)));
             result.andExpect(status().isBadRequest());
             Throwable throwable = result.andReturn().getResolvedException();
             Assertions.assertTrue(throwable != null && throwable.getMessage().contains("valid"));
@@ -107,7 +125,8 @@ class AutoFixControllerTests {
         /* Test code 401 for API: Invoke autofix service (unknown service) */
         @Test
         void testAPICodeBadRequestWithUnknownService() throws Exception {
-            ResultActions result = mockMvc.perform(post(api, "UNKNOWN").contentType(MediaType.APPLICATION_JSON).content(mockJson));
+            ResultActions result = mockMvc.perform(post(api, "UNKNOWN")
+                    .contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsString(msg)));
             result.andExpect(status().isBadRequest());
             Throwable throwable = result.andReturn().getResolvedException();
             Assertions.assertTrue(throwable != null && throwable.getMessage().contains("service"));
@@ -116,18 +135,23 @@ class AutoFixControllerTests {
         /* Test code 405 for API: Invoke autofix service */
         @Test
         void testAPICodeMethodNotAllowed() throws Exception {
-            mockMvc.perform(get(api, "gradle").contentType(MediaType.APPLICATION_JSON).content(mockJson))
+            mockMvc.perform(get(api, "gradle")
+                    .contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsString(msg)))
                     .andExpect(status().isMethodNotAllowed());
-            mockMvc.perform(patch(api, "gradle").contentType(MediaType.APPLICATION_JSON).content(mockJson))
+            mockMvc.perform(patch(api, "gradle")
+                    .contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsString(msg)))
                     .andExpect(status().isMethodNotAllowed());
-            mockMvc.perform(delete(api, "gradle").contentType(MediaType.APPLICATION_JSON).content(mockJson))
+            mockMvc.perform(delete(api, "gradle")
+                    .contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsString(msg)))
                     .andExpect(status().isMethodNotAllowed());
         }
 
         /* Test code 503 for API: Invoke autofix service */
         @Test
         void testAPICodeServiceUnavailable() throws Exception {
-            mockMvc.perform(post(api, "gradle").contentType(MediaType.APPLICATION_JSON).content(mockJsonRejected))
+            msg.setUrl(URL.urlRejected.toString());
+            mockMvc.perform(post(api, "gradle")
+                    .contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsString(msg)))
                     .andExpect(status().isServiceUnavailable());
         }
 

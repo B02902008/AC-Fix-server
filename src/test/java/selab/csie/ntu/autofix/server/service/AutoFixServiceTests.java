@@ -65,7 +65,7 @@ class AutoFixServiceTests {
     void testGetLoading() {
         Map<String, Integer> map = service.getLoading();
         assertThat(map.getOrDefault("core", -1)).isEqualTo(100);
-        assertThat(map.getOrDefault("load", -1)).isEqualTo(0);
+        assertThat(map.getOrDefault("load", -1)).isZero();
     }
 
 }
