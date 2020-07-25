@@ -16,82 +16,96 @@ public class AutoFixThreadWork implements Runnable {
     private Integer id;
     private String dockerImage;
     private AutoFixInvokeMessage message;
-    private FixingRecordService fixingRecordService;
-    private WebSocketService webSocketService;
+    private Runtime runtime;
+    private FixingRecordService recordService;
+    private WebSocketService socketService;
 
     private static final String AUTOFIX_RESULT_DIRECTORY = "./data";
     private static final String AUTOFIX_CONTAINER_VOLUME = "/home/autofix/result";
 
 
-    public AutoFixThreadWork(Integer id, String dockerImage, AutoFixInvokeMessage message,
-                      FixingRecordService fixingRecordService, WebSocketService webSocketService) {
+    public AutoFixThreadWork(Integer id, String dockerImage, AutoFixInvokeMessage message, Runtime runtime,
+                             FixingRecordService recordService, WebSocketService socketService) {
         this.id = id;
         this.dockerImage = dockerImage;
         this.message = message;
-        this.fixingRecordService = fixingRecordService;
-        this.webSocketService = webSocketService;
+        this.runtime = runtime;
+        this.recordService = recordService;
+        this.socketService = socketService;
     }
 
     @SneakyThrows
     public void run() {
-        // Create path for autofix result
-        File resultDir = new File(AUTOFIX_RESULT_DIRECTORY);
-        File logDir = new File(AUTOFIX_RESULT_DIRECTORY + String.format("/%d", id));
-        File logFile = new File(AUTOFIX_RESULT_DIRECTORY + String.format("/%d/%d.log", id, id));
-        if ( ( !resultDir.exists() && !resultDir.mkdir() ) || logDir.exists() || logFile.exists() ) {
-            fixingRecordService.removeRecord(id);
-            webSocketService.sendWebSocketTerminate(message.getSocketID());
+        if (!ensureDockerVolume()) {
+            recordService.removeRecord(id);
+            socketService.sendWebSocketTerminate(message.getSocketID());
+            return;
         }
-        if ( !createAllPermissionPath(logDir, false) || !createAllPermissionPath(logFile, true) ) {
-            fixingRecordService.removeRecord(id);
-            webSocketService.sendWebSocketTerminate(message.getSocketID());
-        }
-
-        // Build and execute docker command
-        DockerRunCmdBuilder cmdBuilder = new DockerRunCmdBuilder(dockerImage);
-        String command = cmdBuilder
-                .remove()
-                .background()
-                .addEnv("BUILD_INDEX", String.valueOf(id))
-                .addEnv("BUILD_TARGET", message.getUrl())
-                .addVolume(logDir.getCanonicalPath())
-                .build();
-        Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", command });
-
-        // Read log file and send to websocket
+        runtime.exec(new String[] { "/bin/sh", "-c", constructDockerCmd() });
         Pattern pattern = Pattern.compile("\\[\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}]\\[(.{5})] (.+)");
-        InputStreamReader stream = new InputStreamReader(new FileInputStream(logFile), StandardCharsets.UTF_8);
+        InputStreamReader stream = new InputStreamReader(
+                new FileInputStream(new File(AUTOFIX_RESULT_DIRECTORY, String.format("%d/%d.log", id, id))),
+                StandardCharsets.UTF_8
+        );
         boolean result = true;
-        while ( true ) {
+        boolean finished = false;
+        while (!finished) {
             String line = AutoFixThreadWork.readLineFromStream(stream);
+            socketService.sendAutoFixLog(message.getSocketID(), line);
             Matcher matcher = pattern.matcher(line);
-            if ( matcher.matches() ) {
-                webSocketService.sendAutoFixLog(message.getSocketID(), line);
-                if ( matcher.group(1).equals("START") ) {
-                    webSocketService.sendAutoFixStage(message.getSocketID(), matcher.group(2));
-                } else if ( matcher.group(1).equals("STAGE") ) {
-                    result &= !matcher.group(2).substring(matcher.group(2).lastIndexOf(":") + 2).equals("Failed");
-                    webSocketService.sendAutoFixStage(message.getSocketID(), matcher.group(2));
-                } else if ( matcher.group(1).equals("FINAL") ) {
-                    fixingRecordService.updateRecord(id, result);
-                    webSocketService.sendAutoFixStage(message.getSocketID(), matcher.group(2));
-                    webSocketService.sendWebSocketTerminate(message.getSocketID());
+            if (!matcher.matches())
+                continue;
+            switch (matcher.group(1)) {
+                case "START":
+                    socketService.sendAutoFixStage(message.getSocketID(), matcher.group(2));
                     break;
-                }
+                case "STAGE":
+                    result &= !matcher.group(2).endsWith("Failed");
+                    socketService.sendAutoFixStage(message.getSocketID(), matcher.group(2));
+                    break;
+                case "FINAL":
+                    recordService.updateRecord(id, result);
+                    socketService.sendAutoFixStage(message.getSocketID(), matcher.group(2));
+                    socketService.sendWebSocketTerminate(message.getSocketID());
+                    finished = true;
+                    break;
+                default:
+                    break;
             }
         }
         stream.close();
     }
 
-    private boolean createAllPermissionPath(File path, boolean isFile) throws IOException {
-        boolean res = isFile ? path.createNewFile() : path.mkdir();
-        res &= path.setExecutable(true, false);
-        res &= path.setReadable(true, false);
-        res &= path.setWritable(true, false);
-        return res;
+    private boolean ensureDockerVolume() throws IOException {
+        File resultRoot = new File(AUTOFIX_RESULT_DIRECTORY);
+        File resultDir  = new File(resultRoot, id.toString());
+        File resultFile = new File(resultRoot, String.format("%d/%d.log", id, id));
+        if (!resultRoot.exists() && !resultRoot.mkdir())
+            return false;
+        if (resultDir.exists() || !resultDir.mkdir())
+            return false;
+        if (resultFile.exists() || !resultFile.createNewFile())
+            return false;
+        return giveAllPermission(resultDir) && giveAllPermission(resultFile);
     }
 
-    public static String readLineFromStream(InputStreamReader stream) throws IOException, InterruptedException {
+    private boolean giveAllPermission(File path) {
+        return path.setExecutable(true, false)
+                && path.setReadable(true, false)
+                && path.setWritable(true, false);
+    }
+
+    private String constructDockerCmd() {
+        return new DockerRunCmdBuilder(dockerImage)
+                .remove()
+                .background()
+                .addEnv("BUILD_INDEX", String.valueOf(id))
+                .addEnv("BUILD_TARGET", message.getUrl())
+                .addVolume(String.format("%s/%d", AUTOFIX_RESULT_DIRECTORY, id))
+                .build();
+    }
+
+    static String readLineFromStream(InputStreamReader stream) throws IOException, InterruptedException {
         StringBuilder sb = new StringBuilder();
         while ( true ) {
             if ( stream.ready() ) {

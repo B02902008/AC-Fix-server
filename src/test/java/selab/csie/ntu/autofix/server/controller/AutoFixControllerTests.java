@@ -61,9 +61,7 @@ class AutoFixControllerTests {
         @BeforeEach
         void setup() {
             api = "/autofix/{tool}";
-            msg = new AutoFixInvokeMessage();
-            msg.setSocketID("SOCKET_ID");
-            msg.setUrl(URL.url.toString());
+            msg = new AutoFixInvokeMessage("SOCKET_ID", URL.url.toString());
             om = new ObjectMapper();
             BDDMockito.given(gradleService.generateNewRecord(anyString())).willReturn(new FixingRecord());
             BDDMockito.given(cmakeService.generateNewRecord(URL.urlUnmatched.toString())).willThrow(new IllegalArgumentException());

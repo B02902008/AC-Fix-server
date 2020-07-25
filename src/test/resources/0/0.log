@@ -1,3 +1,4 @@
+This line is not a logging line.
 [2020-07-21 18:14:27][START] Start Auto-Fix Service: Build#0
 [2020-07-21 18:14:28][STAGE] Checking repository: ...
 [2020-07-21 18:14:29][STAGE] Checking repository: OK
@@ -6,5 +7,10 @@
 [2020-07-21 18:14:32][STAGE] Verifying project: ...
 [2020-07-21 18:14:33][STAGE] Verifying project: OK
 [2020-07-21 18:14:34][STAGE] Fixing project: ...
-[2020-07-21 18:14:40][STAGE] Fixing project: OK
+[2020-07-21 18:14:35][DEBUG] Project name: Mock-Project
+[2020-07-21 18:14:36][DEBUG] In state: Build
+[2020-07-21 18:14:37][DEBUG] Build command: ./gradlew assemble
+[2020-07-21 18:14:38][ERROR] Build failed
+[2020-07-21 18:14:39][INFO ] Failed to fix project: Mock-Project
+[2020-07-21 18:14:40][STAGE] Fixing project: Failed
 [2020-07-21 18:14:41][FINAL] End Auto-Fix Service: Build#0

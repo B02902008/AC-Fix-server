@@ -38,7 +38,7 @@ public abstract class AutoFixService {
             throw new RejectedExecutionException();
         Integer id = fixingRecordService.addNewRecord(record).getId();
         try {
-            pool.execute(new AutoFixThreadWork(id, dockerImage, message, fixingRecordService, webSocketService));
+            pool.execute(new AutoFixThreadWork(id, dockerImage, message, Runtime.getRuntime(), fixingRecordService, webSocketService));
         } catch (RejectedExecutionException e) {
             fixingRecordService.removeRecord(id);
             throw new RejectedExecutionException();
