@@ -46,7 +46,7 @@ class DockerClientTests {
         docker.startContainer();
         ArgumentCaptor<String[]> captor = ArgumentCaptor.forClass(String[].class);
         Mockito.verify(runtime, Mockito.times(1)).exec(captor.capture());
-        assertThat(captor.getValue().length).isEqualTo(3);
+        assertThat(captor.getValue()).hasSize(3);
         assertThat(captor.getValue()[2]).isEqualTo("curl -X POST --unix-socket /var/run/docker.sock http://localhost/containers/123/start");
     }
 

@@ -29,16 +29,12 @@ public class DockerClient {
             int count = 0;
             while (true) {
                 if (reader.ready()) {
-                    int i = reader.read();
-                    char c = (char) i;
-                    if (i == -1)
-                        break;
+                    char c = (char) reader.read();
                     sb.append(c);
                     if (c == '{')
                         ++ count;
-                    else if (c == '}')
-                        if ((-- count) == 0)
-                            break;
+                    else if (c == '}' && (-- count) == 0)
+                        break;
                 }
             }
             JSONObject json = new JSONObject(sb.toString());
