@@ -114,7 +114,10 @@ public class AutoFixThreadWork implements Runnable {
                 ))
                 .put("HostConfig", new JSONObject()
                         .put("AutoRemove", true)
-                        .put("Binds", Collections.singletonList(String.format("%s:/opt/volume", volumeSrc)))
+                        .put("Binds", Arrays.asList(
+                                String.format("%s:/opt/volume", volumeSrc),
+                                "/var/run/docker.sock:/var/run/docker.sock"
+                        ))
                 );
     }
 
