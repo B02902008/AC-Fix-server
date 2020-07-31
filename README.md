@@ -25,6 +25,8 @@ Build command: ```./gradlew bootRun```
 
 The generated ```./data``` directory will be the persistence database
 
+Server uses the default port 8080, add ```-Pport=[PORT]``` in build command to run on any desired port.
+
 ## Build Docker Image
 
 Build command ```./gradlew buildDockerImage -Pdocker```
@@ -35,4 +37,4 @@ Run the image with command like:
 
 ```docker volume create ACFixServerData```
 
-```docker run -d -p 5566:5566 -v ACFixServerData:/opt/data -v /var/run/docker.sock:/var/run/docker.sock [IMAGE ID]```
+```docker run -d -p 8080:8080 -v ACFixServerData:/opt/data -v /var/run/docker.sock:/var/run/docker.sock [IMAGE ID]```

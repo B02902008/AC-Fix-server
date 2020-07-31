@@ -56,9 +56,10 @@ jar {
 processResources {
 	filesMatching('application.properties') {
 		filter ReplaceTokens, tokens: [
-				dockerMode: project.getProperties().containsKey('docker') ? 'true' : 'flase',
-				volumeName: project.getProperties().containsKey('docker') ? 'ACFixServerData' : '',
-				volumePath: project.getProperties().containsKey('docker') ? '/opt/data' : './data'
+				dockerMode: project.hasProperty('docker') ? 'true' : 'flase',
+				volumeName: project.hasProperty('docker') ? 'ACFixServerData' : '',
+				volumePath: project.hasProperty('docker') ? '/opt/data' : './data',
+				serverPort: project.hasProperty('port') ? project.getProperties().get('port') : '8080'
 		]
 	}
 }

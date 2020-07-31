@@ -5,5 +5,5 @@ RUN apt -y install curl
 RUN mkdir /opt/server
 ADD build/libs/ac-fix-server-1.0.jar /opt/server
 WORKDIR /opt/server
-EXPOSE 5566
+EXPOSE 8080
 CMD ["java", "-jar", "ac-fix-server-1.0.jar"]
