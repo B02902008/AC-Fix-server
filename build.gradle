@@ -12,6 +12,10 @@ group = 'selab.csie.ntu'
 version = '1.0'
 sourceCompatibility = '1.8'
 
+ext {
+	docker = project.hasProperty('acfix.docker.compose')
+}
+
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
@@ -56,17 +60,11 @@ jar {
 processResources {
 	filesMatching('application.properties') {
 		filter ReplaceTokens, tokens: [
-				dockerMode: project.hasProperty('docker') ? 'true' : 'flase',
-				volumeName: project.hasProperty('docker') ? 'ACFixServerData' : '',
-				volumePath: project.hasProperty('docker') ? '/opt/data' : './data',
-				serverPort: project.hasProperty('port') ? project.getProperties().get('port') : '8080'
+				dockerMode: docker ? 'true' : 'false',
+				volumeName: docker ? 'ACFixServerData' : '',
+				volumePath: docker ? '/opt/data' : './data',
+				serverPort: project.hasProperty('acfix.server.internal.port') ?
+						project.getProperties().get('acfix.server.internal.port') : '8080'
 		]
 	}
 }
-
-task buildDockerImage(type: Exec) {
-	workingDir rootProject.projectDir
-	commandLine 'docker', 'build', '-t', 'ac-fix/ac-fix-server:1.0', '.'
-}
-
-buildDockerImage.dependsOn build

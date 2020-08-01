@@ -17,24 +17,15 @@ Minimum Requirement
 
 ## Build Project
 
-Build command: ```./gradlew build```
+Build command: ```./gradlew clean build```
 
-## Run server
+## Run Server
 
-Build command: ```./gradlew bootRun```
+Build command: ```./gradlew clean bootRun```
 
-The generated ```./data``` directory will be the persistence database
+The generated ```./data``` directory will be the persistence database.
 
-Server uses the default port 8080, add ```-Pport=[PORT]``` in build command to run on any desired port.
+## Options
 
-## Build Docker Image
-
-Build command ```./gradlew buildDockerImage -Pdocker```
-
-This will build a Docker image with tag ```ac-fix/ac-fix-server:1.0```
-
-Run the image with command like:
-
-```docker volume create ACFixServerData```
-
-```docker run -d -p 8080:8080 -v ACFixServerData:/opt/data -v /var/run/docker.sock:/var/run/docker.sock [IMAGE ID]```
+- ```acfix.docker.compose```: Setting this property in build command will configure server to be Docker mode
+- ```acfix.server.internal.port```: Setting this property in build command will change server running port
