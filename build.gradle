@@ -61,7 +61,7 @@ processResources {
 	filesMatching('application.properties') {
 		filter ReplaceTokens, tokens: [
 				dockerMode: docker ? 'true' : 'false',
-				volumeName: docker ? 'ACFixServerData' : '',
+				volumeName: docker ? 'ac-fix_ServerVolume' : '',
 				volumePath: docker ? '/opt/data' : './data',
 				serverPort: project.hasProperty('acfix.server.internal.port') ?
 						project.getProperties().get('acfix.server.internal.port') : '8080'

@@ -23,7 +23,7 @@ class GlobalConfigTests {
 
     @Test
     void testConfiguredPropertyAppGlobalVolumeName() {
-        assertThat(config.getVolumeName()).isEqualTo("ACFixServerData");
+        assertThat(config.getVolumeName()).isEqualTo("ac-fix_ServerVolume");
     }
 
     @Test
