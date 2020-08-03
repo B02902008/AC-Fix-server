@@ -16,7 +16,7 @@ public class PipACFixService extends ACFixService {
     @Autowired
     public PipACFixService(FixingRecordService recordService, WebSocketService socketService, GlobalConfig config) {
         super(recordService, socketService, config);
-        this.dockerImage = "ac-fix/ac-fix-service-pip:1.0";
+        this.dockerImage = "acfix/acfix-service-pip:1.0";
     }
 
     @Override

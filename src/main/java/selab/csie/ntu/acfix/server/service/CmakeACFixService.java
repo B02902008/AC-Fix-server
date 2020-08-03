@@ -11,7 +11,7 @@ public class CmakeACFixService extends ACFixService {
     @Autowired
     public CmakeACFixService(FixingRecordService recordService, WebSocketService socketService, GlobalConfig config) {
         super(recordService, socketService, config);
-        this.dockerImage = "ac-fix/ac-fix-service-cmake:1.0";
+        this.dockerImage = "acfix/acfix-service-cmake:1.0";
     }
 
     @Override

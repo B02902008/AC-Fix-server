@@ -16,7 +16,7 @@ public class GradleACFixService extends ACFixService {
     @Autowired
     public GradleACFixService(FixingRecordService recordService, WebSocketService socketService, GlobalConfig config) {
         super(recordService, socketService, config);
-        this.dockerImage = "ac-fix/ac-fix-service-gradle:1.0";
+        this.dockerImage = "acfix/acfix-service-gradle:1.0";
     }
 
     @Override
